@@ -383,13 +383,13 @@ def wrap_return(string):
 
 def format_returns(returns, depth=0):
     ret = returns.pop(0).split(":", 1)
-    formatted = ("  " * depth) + wrap_return(ret[0])
+    formatted = ("    " * depth) + wrap_return(ret[0])
     if len(ret) == 2:
         formatted += ":" + esc(ret[1])
     formatted += "  "
     
     for ret in returns:
-        formatted += "\n" + ("  " * depth)
+        formatted += "\n" + ("    " * depth)
         split = ret.split(": ", 1)
         if re.search(r"[\(\)\[\]\{\}]$", split[0]):
             parts = re.split(r"^( *)", split[0])
@@ -414,7 +414,7 @@ def format_returns(returns, depth=0):
 
 def write_functions(funcs, parent, f, depth=0, prefix=False):
     missing_doc = []
-    indent = "  " * depth
+    indent = "    " * depth
     first = True
     for func in funcs:
         if not first:
@@ -428,30 +428,33 @@ def write_functions(funcs, parent, f, depth=0, prefix=False):
             missing_doc.append(func[0])
         else:
             for line in doc.splitlines():
-                f.write("{}  {}  \n".format(indent, esc(line)))
+                if line == "":
+                    f.write("\n")
+                else:
+                    f.write("{}    {}  \n".format(indent, esc(line)))
             f.write("\n")
         
         if len(args) > 0:
-            f.write(indent + "  **Arguments:**\n")
+            f.write(indent + "    **Arguments:**\n")
             for arg in args:
-                f.write("{}  * <code>{}</code>: {}\n".format(indent, format_string(arg[0]), esc(arg[1])))
+                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(arg[0]), esc(arg[1])))
             f.write("\n")
         
         if len(attrs) > 0:
-            f.write(indent + "  **Attributes:**\n")
+            f.write(indent + "    **Attributes:**\n")
             for attr in attrs:
-                f.write("{}  * <code>{}\\.{}</code>: {}\n".format(indent, esc(func[0]), format_string(attr[0]), esc(attr[1])))
+                f.write("{}    * <code>{}\\.{}</code>: {}\n".format(indent, esc(func[0]), format_string(attr[0]), esc(attr[1])))
             f.write("\n")
         
         if len(returns) > 0:
-            f.write(indent + "  **Returns:**\n\n")
+            f.write(indent + "    **Returns:**\n\n")
             f.write(format_returns(returns, depth + 1) + "\n")
             f.write("\n")
         
         if len(raises) > 0:
-            f.write(indent + "  **Raises:**\n")
+            f.write(indent + "    **Raises:**\n")
             for r in raises:
-                f.write("{}  * <code>{}</code>: {}\n".format(indent, format_string(r[0]), esc(r[1])))
+                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(r[0]), esc(r[1])))
             f.write("\n")
     return missing_doc
 
@@ -470,24 +473,27 @@ def write_classes(classes, parent, f):
             missing_doc.append(cls[0])
         else:
             for line in doc.splitlines():
-                f.write("  {}  \n".format(esc(line)))
+                if line == "":
+                    f.write("\n")
+                else:
+                    f.write("    {}  \n".format(esc(line)))
             f.write("\n")
         
         if len(args) > 0:
-            f.write("  **Arguments:**\n")
+            f.write("    **Arguments:**\n")
             for arg in args:
-                f.write("  * <code>{}</code>: {}\n".format(format_string(arg[0]), esc(arg[1])))
+                f.write("    * <code>{}</code>: {}\n".format(format_string(arg[0]), esc(arg[1])))
             f.write("\n")
         
         if len(attrs) > 0:
-            f.write("  **Attributes:**\n")
+            f.write("    **Attributes:**\n")
             for attr in attrs:
-                f.write("  * <code>{}\\.{}</code>: {}\n".format(esc(cls[0]), format_string(attr[0]), esc(attr[1])))
+                f.write("    * <code>{}\\.{}</code>: {}\n".format(esc(cls[0]), format_string(attr[0]), esc(attr[1])))
             f.write("\n")
         
         funcs = [func for func in inspect.getmembers(cls[1], inspect.isfunction) if not func[0].startswith("_")]
         if len(funcs) > 0:
-            f.write("  **Methods:**")
+            f.write("    **Methods:**")
             write_functions(funcs, cls[0], f, 1)
     return missing_doc
 
@@ -520,7 +526,10 @@ def write_header(code, hierarchy, p_path, f, module=False):
     doc, attrs = get_docstr(code)[:2]
     if doc is not None:
         for line in doc.splitlines():
-            f.write("{}  \n".format(esc(line)))
+            if line == "":
+                f.write("\n")
+            else:
+                f.write("{}  \n".format(esc(line)))
         f.write("\n")
     return attrs, True if doc else False
 
@@ -589,7 +598,10 @@ def write_module(members, name, attrs, f):
                 missing_doc["exceptions"].append(exc[0])
             else:
                 for line in doc.splitlines():
-                    f.write("  {}  \n".format(esc(line)))
+                    if line == "":
+                        f.write("\n")
+                    else:
+                        f.write("    {}  \n".format(esc(line)))
             f.write("\n")
     
     return missing_doc
@@ -675,10 +687,10 @@ def build_index(tree, out):
     
     def write_contents(tree, f, depth=1):
         for pack in tree["packs"]:
-            f.write("{}* *package* [**{}**]({})\n".format("  " * depth, pack[0], path.join(*pack[1]["name"].split(".") + ["__init__.md"])))
+            f.write("{}* *package* [**{}**]({})\n".format("    " * depth, pack[0], path.join(*pack[1]["name"].split(".") + ["__init__.md"])))
             write_contents(pack[1], f, depth + 1)
         for mod in tree["mods"]:
-            f.write("{}* *module* [**{}**]({})\n".format("  " * depth, mod[0], path.join(*tree["name"].split(".") + [mod[0] + ".md"])))
+            f.write("{}* *module* [**{}**]({})\n".format("    " * depth, mod[0], path.join(*tree["name"].split(".") + [mod[0] + ".md"])))
     
     write_contents(tree, f)
 
