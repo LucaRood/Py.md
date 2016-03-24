@@ -428,7 +428,7 @@ def write_functions(funcs, parent, f, depth=0, prefix=False):
             missing_doc.append(func[0])
         else:
             for line in doc.splitlines():
-                if line == "":
+                if line.strip() == "":
                     f.write("\n")
                 else:
                     f.write("{}    {}  \n".format(indent, esc(line)))
@@ -437,13 +437,25 @@ def write_functions(funcs, parent, f, depth=0, prefix=False):
         if len(args) > 0:
             f.write(indent + "    **Arguments:**\n")
             for arg in args:
-                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(arg[0]), esc(arg[1])))
+                lines = esc(arg[1]).splitlines()
+                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(arg[0]), lines.pop(0)))
+                for line in lines:
+                    if line.strip() == "":
+                        f.write("\n")
+                    else:
+                        f.write("{}        {}\n".format(indent, line))
             f.write("\n")
         
         if len(attrs) > 0:
             f.write(indent + "    **Attributes:**\n")
             for attr in attrs:
-                f.write("{}    * <code>{}\\.{}</code>: {}\n".format(indent, esc(func[0]), format_string(attr[0]), esc(attr[1])))
+                lines = esc(attr[1]).splitlines()
+                f.write("{}    * <code>{}\\.{}</code>: {}\n".format(indent, esc(func[0]), format_string(attr[0]), lines.pop(0)))
+                for line in lines:
+                    if line.strip() == "":
+                        f.write("\n")
+                    else:
+                        f.write("{}        {}\n".format(indent, line))
             f.write("\n")
         
         if len(returns) > 0:
@@ -454,7 +466,13 @@ def write_functions(funcs, parent, f, depth=0, prefix=False):
         if len(raises) > 0:
             f.write(indent + "    **Raises:**\n")
             for r in raises:
-                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(r[0]), esc(r[1])))
+                lines = esc(r[1]).splitlines()
+                f.write("{}    * <code>{}</code>: {}\n".format(indent, format_string(r[0]), lines.pop(0)))
+                for line in lines:
+                    if line.strip() == "":
+                        f.write("\n")
+                    else:
+                        f.write("{}        {}\n".format(indent, line))
             f.write("\n")
     return missing_doc
 
@@ -473,7 +491,7 @@ def write_classes(classes, parent, f):
             missing_doc.append(cls[0])
         else:
             for line in doc.splitlines():
-                if line == "":
+                if line.strip() == "":
                     f.write("\n")
                 else:
                     f.write("    {}  \n".format(esc(line)))
@@ -482,13 +500,25 @@ def write_classes(classes, parent, f):
         if len(args) > 0:
             f.write("    **Arguments:**\n")
             for arg in args:
-                f.write("    * <code>{}</code>: {}\n".format(format_string(arg[0]), esc(arg[1])))
+                lines = esc(arg[1]).splitlines()
+                f.write("    * <code>{}</code>: {}\n".format(format_string(arg[0]), lines.pop(0)))
+                for line in lines:
+                    if line.strip() == "":
+                        f.write("\n")
+                    else:
+                        f.write("        {}\n".format(line))
             f.write("\n")
         
         if len(attrs) > 0:
             f.write("    **Attributes:**\n")
             for attr in attrs:
-                f.write("    * <code>{}\\.{}</code>: {}\n".format(esc(cls[0]), format_string(attr[0]), esc(attr[1])))
+                lines = esc(attr[1]).splitlines()
+                f.write("    * <code>{}\\.{}</code>: {}\n".format(esc(cls[0]), format_string(attr[0]), lines.pop(0)))
+                for line in lines:
+                    if line.strip() == "":
+                        f.write("\n")
+                    else:
+                        f.write("        {}\n".format(line))
             f.write("\n")
         
         funcs = [func for func in inspect.getmembers(cls[1], inspect.isfunction) if not func[0].startswith("_")]
@@ -526,7 +556,7 @@ def write_header(code, hierarchy, p_path, f, module=False):
     doc, attrs = get_docstr(code)[:2]
     if doc is not None:
         for line in doc.splitlines():
-            if line == "":
+            if line.strip() == "":
                 f.write("\n")
             else:
                 f.write("{}  \n".format(esc(line)))
@@ -576,12 +606,15 @@ def write_module(members, name, attrs, f):
     
     if len(attrs) > 0:
         f.write("##Attributes\n")
-        first = True
         for attr in attrs:
-            first = False
-            
+            lines = esc(attr[1]).splitlines()
             f.write('* <a id="attribute-{}-{}"></a>*attribute* {}\\.{}: {}\n'.format(
-                name, attr[0].split("(")[0].strip(), esc(name), format_string(attr[0]), esc(attr[1])))
+                name, attr[0].split("(")[0].strip(), esc(name), format_string(attr[0]), lines.pop(0)))
+            for line in lines:
+                if line.strip() == "":
+                    f.write("\n")
+                else:
+                    f.write("    {}\n".format(line))
         f.write("\n")
     
     if len(members["excepts"]) > 0:
@@ -598,7 +631,7 @@ def write_module(members, name, attrs, f):
                 missing_doc["exceptions"].append(exc[0])
             else:
                 for line in doc.splitlines():
-                    if line == "":
+                    if line.strip() == "":
                         f.write("\n")
                     else:
                         f.write("    {}  \n".format(esc(line)))
