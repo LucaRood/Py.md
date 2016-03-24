@@ -528,7 +528,7 @@ def write_classes(classes, parent, f):
     return missing_doc
 
 def write_header(code, hierarchy, p_path, f, module=False):
-    header = "#"
+    header = "# "
     if module:
         start = 2
         add = 0
@@ -571,41 +571,41 @@ def write_module(members, name, attrs, f):
         }
     
     if len(members["classes"]) > 0:
-        f.write("####[Classes](#classes-1)\n")
+        f.write("#### [Classes](#classes-1)\n")
         for cls in members["classes"]:
             f.write("* <code>{}\\.[**{}**](#class-{}-{})</code>\n".format(esc(name), esc(cls[0]), name, cls[0]))
         f.write("\n")
     
     if len(members["funcs"]) > 0:
-        f.write("####[Functions](#functions-1)\n")
+        f.write("#### [Functions](#functions-1)\n")
         for func in members["funcs"]:
             f.write("* <code>{}\\.[**{}**](#function-{}-{})</code>\n".format(esc(name), esc(func[0]), name, func[0]))
         f.write("\n")
     
     if len(attrs) > 0:
-        f.write("####[Attributes](#attributes-1)\n")
+        f.write("#### [Attributes](#attributes-1)\n")
         for attr in attrs:
             f.write("* <code>{}\\.[**{}**](#attribute-{}-{})</code>\n".format(
                 esc(name), esc(attr[0].split("(")[0].strip()), name, attr[0].split("(")[0].strip()))
         f.write("\n")
     
     if len(members["excepts"]) > 0:
-        f.write("####[Exceptions](#exceptions-1)\n")
+        f.write("#### [Exceptions](#exceptions-1)\n")
         for exc in members["excepts"]:
             f.write("* <code>{}\\.[**{}**](#exception-{}-{})</code>\n".format(esc(name), esc(exc[0]), name, exc[0]))
         f.write("\n")
     
     #Build member documentation
     if len(members["classes"]) > 0:
-        f.write("##Classes\n")
+        f.write("## Classes\n")
         missing_doc["classes"] = write_classes(members["classes"], name, f)
     
     if len(members["funcs"]) > 0:
-        f.write("##Functions\n")
+        f.write("## Functions\n")
         missing_doc["functions"] = write_functions(members["funcs"], name, f, prefix=True)
     
     if len(attrs) > 0:
-        f.write("##Attributes\n")
+        f.write("## Attributes\n")
         for attr in attrs:
             lines = esc(attr[1]).splitlines()
             f.write('* <a id="attribute-{}-{}"></a>*attribute* {}\\.{}: {}\n'.format(
@@ -618,7 +618,7 @@ def write_module(members, name, attrs, f):
         f.write("\n")
     
     if len(members["excepts"]) > 0:
-        f.write("##Exceptions\n")
+        f.write("## Exceptions\n")
         first = True
         for exc in members["excepts"]:
             if not first:
@@ -665,16 +665,16 @@ def build_docs(tree, out):
     
     #Build index with links to members and to types (classes, functions...)
     if len(tree["packs"]) > 0 or len(tree["mods"]) > 0 or len(tree["funcs"]) > 0 or len(tree["classes"]) > 0 or len(tree["excepts"]) > 0 or len(attrs) > 0:
-        f.write("##Index\n")
+        f.write("## Index\n")
     
     if len(tree["packs"]) > 0:
-        f.write("####Subpackages\n")
+        f.write("#### Subpackages\n")
         for pack in tree["packs"]:
             f.write("* <code>{}\\.[**{}**]({}/__init__.md)</code>\n".format(esc(name), esc(pack[0]), pack[0]))
         f.write("\n")
     
     if len(tree["mods"]) > 0:
-        f.write("####Modules\n")
+        f.write("#### Modules\n")
         for mod in tree["mods"]:
             f.write("* <code>{}\\.[**{}**]({}.md)</code>\n".format(esc(name), esc(mod[0]), mod[0]))
         f.write("\n")
@@ -714,7 +714,7 @@ def build_docs(tree, out):
 
 def build_index(tree, out):
     f = open(path.join(out, "index.md"), 'w', encoding="utf-8")
-    f.write("#Index of {} package\n\n".format(tree["name"].split(".")[-1]))
+    f.write("# Index of {} package\n\n".format(tree["name"].split(".")[-1]))
     
     f.write("* *package* [**{}**]({})\n".format(tree["name"], path.join(tree["name"], "__init__.md")))
     
