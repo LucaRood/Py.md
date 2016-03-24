@@ -124,7 +124,6 @@ def resolve_imp(root, imp, depth):
     imps = imp.strip(".").split(".")
     for i, imp in enumerate(imps):
         n_imp = find_imp(root, imp, depth) if i != 0 else None
-        from_init = False
         if n_imp == False:
             return None, None
         elif n_imp is not None:
